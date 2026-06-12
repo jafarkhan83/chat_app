@@ -7,27 +7,30 @@ use App\Models\Message;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class ChatController extends Controller
 {
-    public function index()
+    public function show(?User $user = null)
     {
         $users = User::where('id', '!=', Auth::id())->get();
+        $messages = [];
 
-        return response()->json($users);
-    }
+        if ($user) {
+            $messages = Message::where(function ($query) use ($user) {
+                $query->where('sender_id', Auth::id())
+                      ->where('receiver_id', $user->id);
+            })->orWhere(function ($query) use ($user) {
+                $query->where('sender_id', $user->id)
+                      ->where('receiver_id', Auth::id());
+            })->orderBy('created_at', 'asc')->get();
+        }
 
-    public function fetchMessages($userId)
-    {
-        $messages = Message::where(function ($query) use ($userId) {
-            $query->where('sender_id', Auth::id())
-                  ->where('receiver_id', $userId);
-        })->orWhere(function ($query) use ($userId) {
-            $query->where('sender_id', $userId)
-                  ->where('receiver_id', Auth::id());
-        })->orderBy('created_at', 'asc')->get();
-
-        return response()->json($messages);
+        return Inertia::render('Chat', [
+            'users' => $users,
+            'chatUser' => $user,
+            'initialMessages' => $messages,
+        ]);
     }
 
     public function sendMessage(Request $request)

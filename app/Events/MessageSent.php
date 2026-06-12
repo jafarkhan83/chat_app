@@ -30,8 +30,11 @@ class MessageSent implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
+        $id1 = min($this->message->sender_id, $this->message->receiver_id);
+        $id2 = max($this->message->sender_id, $this->message->receiver_id);
+
         return [
-            new PrivateChannel('chat.' . $this->message->receiver_id),
+            new PrivateChannel("chat.{$id1}.{$id2}"),
         ];
     }
 }
