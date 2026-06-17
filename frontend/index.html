@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>University Assistant</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="sidebar">
+    <div class="logo">
+      <span class="logo-icon">🎓</span>
+      <span class="logo-text">MIT Information Bot</span>
+    </div>
+    <p class="sidebar-desc">Ask me anything about the university admissions, departments, fees, and more.</p>
+    <button class="new-chat-btn" onclick="clearChat()">+ New Chat</button>
+  </div>
+
+  <div class="main">
+    <div class="chat-window" id="chat-window">
+      <div class="welcome-msg">
+        <h2>Hello! 👋</h2>
+        <p>I'm your university assistant. Ask me anything!</p>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <input
+        type="text"
+        id="user-input"
+        placeholder="Ask a question about the university..."
+        onkeydown="if(event.key === 'Enter') sendMessage()"
+      />
+      <button class="send-btn" onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
