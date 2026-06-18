@@ -1,41 +1,203 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>University Assistant</title>
+  <title>BUITEMS Information Bot</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom Stylesheet -->
   <link rel="stylesheet" href="style.css" />
+  
+  <!-- Marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
 
-  <div class="sidebar">
-    <div class="logo">
-      <span class="logo-icon">🎓</span>
-      <span class="logo-text">MIT Information Bot</span>
+  <!-- Mobile Header -->
+  <div class="mobile-header">
+    <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Menu">
+      <i class="fa-solid fa-bars"></i>
+    </button>
+    <div class="mobile-title">
+      <span class="logo-emoji">🎓</span>
+      <span class="title-text">BUITEMS Assistant</span>
     </div>
-    <p class="sidebar-desc">Ask me anything about the university admissions, departments, fees, and more.</p>
-    <button class="new-chat-btn" onclick="clearChat()">+ New Chat</button>
+    <div class="status-indicator">
+      <span class="status-dot online"></span>
+    </div>
   </div>
 
-  <div class="main">
-    <div class="chat-window" id="chat-window">
-      <div class="welcome-msg">
-        <h2>Hello! 👋</h2>
-        <p>I'm your university assistant. Ask me anything!</p>
+  <div class="app-container">
+    
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-badge">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <div class="logo-details">
+            <span class="logo-text">BUITEMS</span>
+            <span class="logo-subtext">Information Bot</span>
+          </div>
+        </div>
+        <button class="close-sidebar-btn" id="close-sidebar-btn">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-    </div>
 
-    <div class="input-area">
-      <input
-        type="text"
-        id="user-input"
-        placeholder="Ask a question about the university..."
-        onkeydown="if(event.key === 'Enter') sendMessage()"
-      />
-      <button class="send-btn" onclick="sendMessage()">Send</button>
-    </div>
+      <div class="sidebar-status">
+        <span class="status-dot online"></span>
+        <span class="status-text">AI Agent Online</span>
+      </div>
+
+      <button class="new-chat-btn" onclick="clearChat()">
+        <i class="fa-solid fa-plus"></i>
+        <span>New Conversation</span>
+      </button>
+
+      <nav class="sidebar-nav">
+        <span class="nav-section-title">Quick Topics</span>
+        <ul class="nav-links">
+          <li>
+            <button class="nav-link-btn" onclick="sendStarter('Tell me about BUITEMS admissions.')">
+              <i class="fa-solid fa-user-plus"></i>
+              <span>Admissions Guide</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-link-btn" onclick="sendStarter('What is the fee structure for undergraduate programs?')">
+              <i class="fa-solid fa-credit-card"></i>
+              <span>Fee Structure</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-link-btn" onclick="sendStarter('What departments and programs are offered at BUITEMS?')">
+              <i class="fa-solid fa-building-columns"></i>
+              <span>Departments & Programs</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-link-btn" onclick="sendStarter('What scholarship opportunities are available at BUITEMS?')">
+              <i class="fa-solid fa-award"></i>
+              <span>Scholarships</span>
+            </button>
+          </li>
+          <li>
+            <button class="nav-link-btn" onclick="sendStarter('What are the contact details of BUITEMS admission office?')">
+              <i class="fa-solid fa-address-book"></i>
+              <span>Contact Directory</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="theme-toggle" class="theme-toggle-btn">
+          <i class="fa-regular fa-moon"></i>
+          <span class="theme-label">Dark Mode</span>
+        </button>
+        <div class="footer-meta">
+          <span>v1.2.0 &bull; BUITEMS RAG</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Chat Window -->
+    <main class="main-content">
+      
+      <!-- Top Bar (Desktop) -->
+      <header class="desktop-header">
+        <div class="header-info">
+          <h2>BUITEMS Campus Assistant</h2>
+          <p>Powered by Llama 3.3 & ChromaDB</p>
+        </div>
+        <div class="header-actions">
+          <button class="header-btn" onclick="clearChat()" title="Reset chat">
+            <i class="fa-solid fa-arrows-rotate"></i>
+            <span>Clear</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Chat Window / Scroll container -->
+      <div class="chat-window" id="chat-window">
+        <div class="welcome-container" id="welcome-container">
+          <div class="welcome-hero">
+            <div class="welcome-icon">
+              <i class="fa-solid fa-graduation-cap animate-bounce"></i>
+            </div>
+            <h1>How can I help you today?</h1>
+            <p>I am your official BUITEMS information assistant. Ask me questions about admissions, department programs, fee breakdowns, and student facilities.</p>
+          </div>
+
+          <div class="suggestion-grid">
+            <div class="suggestion-card" onclick="sendStarter('What are the general admission criteria for engineering programs?')">
+              <div class="card-icon"><i class="fa-solid fa-gears"></i></div>
+              <h3>Engineering Admissions</h3>
+              <p>Find out requirements, test details, and eligibility criteria.</p>
+              <span class="card-action">Ask assistant <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+            
+            <div class="suggestion-card" onclick="sendStarter('Can you list the undergraduate fee structure?')">
+              <div class="card-icon"><i class="fa-solid fa-wallet"></i></div>
+              <h3>Fee Structure</h3>
+              <p>Check semester tuition, security deposits, and registration fees.</p>
+              <span class="card-action">Ask assistant <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+
+            <div class="suggestion-card" onclick="sendStarter('What BS programs are offered in Faculty of Information and Communication Technology (FICT)?')">
+              <div class="card-icon"><i class="fa-solid fa-laptop-code"></i></div>
+              <h3>FICT Programs</h3>
+              <p>List of CS, SE, IT, and Computer Engineering course offerings.</p>
+              <span class="card-action">Ask assistant <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+
+            <div class="suggestion-card" onclick="sendStarter('What are the scholarship opportunities for needy students?')">
+              <div class="card-icon"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+              <h3>Scholarship Guides</h3>
+              <p>Explore HEC, BUITEMS Need-Based, and merit scholarships.</p>
+              <span class="card-action">Ask assistant <i class="fa-solid fa-arrow-right"></i></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Bar Container -->
+      <footer class="input-area-container">
+        <div class="input-wrapper">
+          <div class="input-prefix-icon">
+            <i class="fa-regular fa-comment-dots"></i>
+          </div>
+          <input
+            type="text"
+            id="user-input"
+            placeholder="Ask a question about BUITEMS (e.g. eligibility criteria, deadlines)..."
+            autocomplete="off"
+            onkeydown="if(event.key === 'Enter') sendMessage()"
+          />
+          <button class="send-btn" id="send-btn" onclick="sendMessage()" aria-label="Send message">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </div>
+        <p class="input-disclaimer">
+          BUITEMS Agent may provide AI-generated info. Verify critical details with the BUITEMS Admission Office.
+        </p>
+      </footer>
+
+    </main>
+
   </div>
 
+  <!-- Main Application Script -->
   <script src="script.js"></script>
 </body>
 </html>
