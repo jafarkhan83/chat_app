@@ -23,12 +23,13 @@ client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 class Question(BaseModel):
     question: str
+    history: list = []
 
-chat_history = []
 
 @app.post("/ask")
 def ask(body: Question):
     question = body.question
+    chat_history = body.history
 
     chunks = retrieve(question)
     context = "\n\n".join(chunks)

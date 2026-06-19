@@ -10,6 +10,13 @@ print("Loading embedding model...")
 model = SentenceTransformer("all-MiniLM-L6-v2")
 
 client = chromadb.PersistentClient(path="./vectordb")
+
+# To ensure a fresh start, delete the existing collection if it exists
+print("Checking for existing collection...")
+if "buitems" in [c.name for c in client.list_collections()]:
+    print("Deleting existing 'buitems' collection.")
+    client.delete_collection(name="buitems")
+
 collection = client.get_or_create_collection(name="buitems")
 
 def extract_text(pdf_path):
@@ -25,7 +32,7 @@ def extract_text(pdf_path):
                 text += cleaned + "\n"
     return text
 
-def chunk_text(text, chunk_size=800, overlap=100):
+def chunk_text(text, chunk_size=1500, overlap=300):
     chunks = []
     start = 0
     while start < len(text):
@@ -50,31 +57,38 @@ if not all_pdfs:
     print("No PDFs found in pdfs/ folder!")
 else:
     for idx, pdf_path in enumerate(all_pdfs, 1):
-        print(f"[{idx}/{len(all_pdfs)}] Processing: {os.path.basename(pdf_path)}")
+        try:
+            print(f"[{idx}/{len(all_pdfs)}] Processing: {os.path.basename(pdf_path)}")
 
-        text = extract_text(pdf_path)
+            text = extract_text(pdf_path)
 
-        if not text.strip():
-            print(f"  ⚠️  No text found, skipping\n")
-            continue
+            if not text.strip():
+                print(f"  ⚠️  No text found, skipping\n")
+                continue
 
-        chunks = chunk_text(text)
-        print(f"  → {len(chunks)} chunks created")
+            chunks = chunk_text(text)
+            print(f"  → {len(chunks)} chunks created")
 
-        embeddings = model.encode(
-            chunks,
-            batch_size=32,
-            show_progress_bar=False
-        ).tolist()
+            embeddings = model.encode(
+                chunks,
+                batch_size=32,
+                show_progress_bar=False
+            ).tolist()
 
-        for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
+            ids = [f"{os.path.basename(pdf_path)}_chunk_{i}" for i in range(len(chunks))]
+            metadatas = [{"source": os.path.basename(pdf_path)} for _ in chunks]
+
             collection.add(
-                ids=[f"{os.path.basename(pdf_path)}_chunk_{i}"],
-                documents=[chunk],
-                embeddings=[embedding]
+                ids=ids,
+                documents=chunks,
+                embeddings=embeddings,
+                metadatas=metadatas
             )
 
-        print(f"  → Stored ✅\n")
+            print(f"  → Stored ✅\n")
+        except Exception as e:
+            print(f"  ❌ Error processing {os.path.basename(pdf_path)}: {e}\n")
+            continue
 
 print("=" * 50)
 print("All PDFs ingested successfully!")
