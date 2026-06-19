@@ -1,6 +1,6 @@
-# BUITEMS_Information_Bot 
+# BUITEMS Information Bot
 
-A RAG (Retrieval Augmented Generation) based chatbot that answers questions about university information using your own PDF documents.
+A RAG (Retrieval Augmented Generation) based chatbot that answers questions about BUITEMS using a pre-built vector database.
 
 ## Tech Stack
 
@@ -16,9 +16,13 @@ BUITEMS_Information_Bot/
 
 ├── pdfs/              # Add your university PDFs here
 
-├── vectordb/          # Auto created after running ingest.py
+├── vectordb/          # Pre-built ChromaDB containing BUITEMS information.
 
 ├── frontend/
+
+│   └── vendor/
+
+        └── FontAwesome 5.15.4/  # download it from fontawesome.com
 
 │   ├── index.html
 
@@ -70,7 +74,12 @@ and put that api here in this file
 ### 5. Add your PDFs
 Drop your university PDF files inside the `pdfs/` folder.
 
-### 6. Ingest PDFs into vector database
+### 6. (Optional) Ingest PDFs
+
+The vector database is already created and contains information about the BUITEMS overview, faculties, admission, scholarships, fee structure, and all departments.
+
+You only need to run the `ingest.py` script if you add new or different PDF files to the `pdfs/` folder.
+
 ```bash
 python ingest.py
 ```
