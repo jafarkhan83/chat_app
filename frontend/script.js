@@ -30,6 +30,9 @@ function escapeHTML(str) {
   );
 }
 
+// Global variable to hold the chat history for the current session
+let chatHistory = [];
+
 // Send user message
 function sendMessage() {
   const question = userInput.value.trim();
@@ -54,7 +57,7 @@ function sendMessage() {
   fetch("http://localhost:8000/ask", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ question: question })
+    body: JSON.stringify({ question: question, history: chatHistory })
   })
     .then(res => {
       if (!res.ok) {
@@ -64,6 +67,9 @@ function sendMessage() {
     })
     .then(data => {
       removeTyping(typingId);
+      // Add both user question and bot answer to history
+      chatHistory.push({ role: "user", content: question });
+      chatHistory.push({ role: "assistant", content: data.answer });
       appendMessage("bot", data.answer);
     })
     .catch((err) => {
@@ -205,6 +211,9 @@ function clearChat() {
   userInput.value = "";
   userInput.disabled = false;
   sendBtn.disabled = false;
+
+  // Reset the session's chat history
+  chatHistory = [];
 }
 
 // Theme Management (Light/Dark Theme Toggle)

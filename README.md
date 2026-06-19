@@ -1,6 +1,6 @@
-# BUITEMS_Information_Bot 
+# BUITEMS Information Bot
 
-A RAG (Retrieval Augmented Generation) based chatbot that answers questions about university information using your own PDF documents.
+A RAG (Retrieval Augmented Generation) based chatbot that answers questions about BUITEMS using a pre-built vector database.
 
 ## Tech Stack
 
@@ -11,32 +11,23 @@ A RAG (Retrieval Augmented Generation) based chatbot that answers questions abou
 - **Frontend** - HTML, CSS, JavaScript
 
 ## Project Structure
-
+```
 BUITEMS_Information_Bot/
-
-├── pdfs/              # Add your university PDFs here
-
-├── vectordb/          # Auto created after running ingest.py
-
-├── frontend/
-
-│   ├── index.html
-
-│   ├── style.css
-
-│   └── script.js
-
-├── ingest.py          # Run once to load PDFs
-
-├── retriever.py       # Searches vector DB
-
-├── main.py            # FastAPI backend
-
-├── .env               # Your Groq API key -> i am not going to share it get your own api Gndo.
-
-├── requirements.txt
-
-└── README.md
+├── .env               # Stores the Groq API key
+├── main.py            # FastAPI backend server
+├── ingest.py          # Script to process and store PDFs
+├── retriever.py       # Script to search the vector database
+├── requirements.txt   # Python dependencies
+├── pdfs/              # Folder for your PDF documents
+├── vectordb/          # Pre-built ChromaDB vector store
+└── frontend/
+    ├── index.html     # Main HTML file for the UI
+    ├── style.css      # Styles for the chatbot
+    ├── script.js      # Client-side application logic
+    └── vendor/
+        ├── fontawesome/ # For UI icons (requires manual setup)
+        └── marked.min.js  # For rendering Markdown in chat
+```
 
 ## Setup Instructions
 
@@ -70,7 +61,12 @@ and put that api here in this file
 ### 5. Add your PDFs
 Drop your university PDF files inside the `pdfs/` folder.
 
-### 6. Ingest PDFs into vector database
+### 6. (Optional) Ingest PDFs
+
+The vector database is already created and contains information about the BUITEMS overview, faculties, admission, scholarships, fee structure, and all departments.
+
+You only need to run the `ingest.py` script if you add new or different PDF files to the `pdfs/` folder.
+
 ```bash
 python ingest.py
 ```
