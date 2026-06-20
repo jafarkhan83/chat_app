@@ -2,7 +2,7 @@
 venv/
 
 # Vector database (each user generates their own)
-# vectordb/
+vectordb/
 
 # Environment variables (NEVER push this)
 .env
