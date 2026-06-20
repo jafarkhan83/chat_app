@@ -109,7 +109,7 @@ def debug_retrieve(question, top_k=20):
 if __name__ == "__main__":
     # Replace with your actual queries
     test_questions = [
-        "How international students can apply for admission?",
+        "tell me about vice chancellor",  # Should find relevant info about the vice chancellor
         # Add more test queries here
     ]
     

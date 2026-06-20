@@ -32,39 +32,61 @@ def extract_text(pdf_path):
                 text += cleaned + "\n"
     return text
 
-def chunk_text(text, chunk_size=1500, overlap=300):
+def chunk_text(text, chunk_size=800, overlap=150):
     """
-    Smart chunking that respects semantic boundaries (paragraphs, sections).
-    Tries to keep related bullet points together.
+    Smart chunking that preserves ALL information with semantic boundaries and overlap.
+    - First tries to split by paragraphs (preserves context)
+    - If a section is too large, splits by sentences
+    - Implements overlap to maintain context between chunks
     """
     chunks = []
     
     # Split by double newlines first (section/paragraph boundaries)
     sections = text.split('\n\n')
     
-    current_chunk = ""
+    all_paragraphs = []
     for section in sections:
-        # If adding this section keeps us under chunk_size, add it
-        if len(current_chunk) + len(section) < chunk_size:
-            current_chunk += section + "\n\n"
+        # If section is larger than chunk_size, split by sentences
+        if len(section) > chunk_size:
+            sentences = section.split('. ')
+            for sent in sentences:
+                if sent.strip():
+                    all_paragraphs.append(sent.strip() + '.')
         else:
-            # If current chunk has content, save it
+            if section.strip():
+                all_paragraphs.append(section.strip())
+    
+    # Now create chunks with overlap
+    current_chunk = ""
+    for para in all_paragraphs:
+        if len(current_chunk) + len(para) < chunk_size:
+            if current_chunk:
+                current_chunk += "\n\n" + para
+            else:
+                current_chunk = para
+        else:
+            # Save current chunk
             if current_chunk.strip():
                 chunks.append(current_chunk.strip())
-            # Start new chunk with this section
-            current_chunk = section + "\n\n"
+            
+            # Start new chunk with overlap (include end of previous chunk)
+            if overlap > 0 and current_chunk:
+                overlap_text = current_chunk[-overlap:].rsplit('\n', 1)[-1]
+                current_chunk = overlap_text + "\n\n" + para
+            else:
+                current_chunk = para
     
-    # Don't forget the last chunk
+    # Add the last chunk
     if current_chunk.strip():
         chunks.append(current_chunk.strip())
     
-    # Remove empty chunks
-    chunks = [c for c in chunks if c.strip()]
+    # Remove very small chunks and empty ones
+    chunks = [c for c in chunks if len(c.strip()) > 50]
     
     return chunks
 
 # Recursively find all PDFs in subdirectories
-pdf_folder = "./pdfs"
+pdf_folder = "./expdf"
 all_pdfs = []
 
 for root, dirs, files in os.walk(pdf_folder):
@@ -80,10 +102,10 @@ if not all_pdfs:
 else:
     for idx, pdf_path in enumerate(all_pdfs, 1):
         try:
-            # Extract content type from subdirectory name
+            # Extract content type from PDF name
             relative_path = os.path.relpath(pdf_path, pdf_folder)
-            content_type = os.path.dirname(relative_path)
             pdf_name = os.path.basename(pdf_path)
+            content_type = pdf_name
             
             print(f"[{idx}/{len(all_pdfs)}] Processing: {relative_path}")
 

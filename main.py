@@ -29,7 +29,6 @@ class Question(BaseModel):
 @app.post("/ask")
 def ask(body: Question):
     question = body.question
-    chat_history = body.history
 
     chunks = retrieve(question)
     context = "\n\n".join(chunks)
@@ -53,23 +52,17 @@ Rules:
 - Keep answers clear and concise
 - Format answers with bullet points where appropriate"""
 
-    chat_history.append({
-        "role": "user",
-        "content": f"Context:\n{context}\n\nQuestion: {question}"
-    })
-
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
             {"role": "system", "content": system_prompt},
-            *chat_history
+            {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {question}"}
         ],
-        max_tokens=1024,
+        max_tokens=512,
         temperature=0.5
     )
 
     answer = response.choices[0].message.content
-    chat_history.append({"role": "assistant", "content": answer})
 
     return {"answer": answer}
 

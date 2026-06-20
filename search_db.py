@@ -36,5 +36,5 @@ def search_keyword(keyword):
 
 # Search for the person
 if __name__ == "__main__":
-    search_keyword("Poma Panezai")
+    search_keyword("tell me about vice chancellor")
     
